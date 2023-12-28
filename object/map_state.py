@@ -1,5 +1,5 @@
 from utils_dofus import get_random_start_map, get_map, MAX_PA, MAX_PM, dict_swap_pos_to_dofus, base_x, step_y, step_x, \
-    base_y, box_size, get_image_type, dict_swap_array_index_to_dofus
+    base_y, box_size, get_image_type, dict_swap_array_index_to_dofus, INVO, BOSS, MONSTER, UNDEFINED, EMPTY_CELL
 import pyautogui
 
 
@@ -31,10 +31,9 @@ class MapState:
         return MapState(MAX_PA, MAX_PM, map, map_index)
 
     @staticmethod
-    def screen_info(pa, pm, map_index):
+    def screen_info(pa, pm, map_index=0):
 
         array_map = []
-
         screen = pyautogui.screenshot()
 
         for i in range(len(dict_swap_array_index_to_dofus)):
@@ -49,7 +48,13 @@ class MapState:
 
             cropped = screen.crop((x, y, x + box_size, y + box_size))
 
-            array_map.append(get_image_type(img=cropped))
+            image_type = get_image_type(img=cropped)
+
+            if image_type == INVO or image_type == BOSS:
+                image_type = MONSTER
+            if image_type == UNDEFINED:
+                image_type = EMPTY_CELL
+            array_map.append(image_type)
 
         return MapState(pa, pm, array_map, map_index)
 

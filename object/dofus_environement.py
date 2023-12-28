@@ -1,6 +1,6 @@
 from utils_dofus import ACTIONS, get_player_pos, END_TURN, MAX_PM, MAX_PA, REWARD_END_TURN, REWARD_END_FIGHT, \
     REWARD_MOB, REWARD_MOVE, REWARD_IMPOSSIBLE, WALL, INVO, MONSTER, mob_turn, dict_swap_pos_to_array_index, EMPTY_CELL, \
-    UNDEFINED, BOSS, ldv, USABLE_CELL, map_contains_mob, count_pm_to_pos, PLAYER
+    UNDEFINED, BOSS, ldv, USABLE_CELL, map_contains_mob, count_pm_to_pos, PLAYER, REWARD_END_TURN_WITHOUT_ACTION
 
 
 class Environment:
@@ -15,10 +15,13 @@ class Environment:
             exit()
 
         if clicked == END_TURN:
+            reward = REWARD_END_TURN
+            if new_state.pm == MAX_PM and new_state.pa == MAX_PA:
+                reward = REWARD_END_TURN_WITHOUT_ACTION
             new_state.pa = MAX_PA
             new_state.pm = MAX_PM
             new_state.map = mob_turn(new_state.map, invo=False)
-            return REWARD_END_TURN, new_state
+            return reward, new_state
 
         clicked_pos = player_pos[0] + clicked[0], player_pos[1] + clicked[1]
 
