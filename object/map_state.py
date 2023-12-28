@@ -31,10 +31,11 @@ class MapState:
         return MapState(MAX_PA, MAX_PM, map, map_index)
 
     @staticmethod
-    def screen_info(pa, pm, map_index=0):
+    def screen_info(pa, pm, map_index=0, screenshot=None):
 
         array_map = []
-        screen = pyautogui.screenshot()
+        if screenshot is not None:
+            screenshot = pyautogui.screenshot()
 
         for i in range(len(dict_swap_array_index_to_dofus)):
 
@@ -46,7 +47,7 @@ class MapState:
                 x += step_x // 2
                 y += step_y // 2
 
-            cropped = screen.crop((x, y, x + box_size, y + box_size))
+            cropped = screenshot.crop((x, y, x + box_size, y + box_size))
 
             image_type = get_image_type(img=cropped)
 
