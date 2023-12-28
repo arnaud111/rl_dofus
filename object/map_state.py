@@ -34,7 +34,7 @@ class MapState:
     def screen_info(pa, pm, map_index=0, screenshot=None):
 
         array_map = []
-        if screenshot is not None:
+        if screenshot is None:
             screenshot = pyautogui.screenshot()
 
         for i in range(len(dict_swap_array_index_to_dofus)):
