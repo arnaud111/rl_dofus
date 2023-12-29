@@ -12,7 +12,7 @@ class Environment:
         new_state = map_state.clone()
 
         if player_pos == -1:
-            exit()
+            return REWARD_IMPOSSIBLE, map_state
 
         if clicked == END_TURN:
             reward = REWARD_END_TURN

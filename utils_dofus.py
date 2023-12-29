@@ -24,6 +24,7 @@ list_cell_color = {
     (251, 241, 191, 255): BOSS,
     (196, 19, 0, 255): PLAYER,
     (101, 11, 1, 255): PLAYER,
+    (164, 51, 18, 255): PLAYER,
 }
 
 MAX_PA = 6
@@ -352,7 +353,8 @@ def get_image_type(path=None, img=None):
     if most[0] in list_cell_color.keys():
         type = list_cell_color[most[0]]
     else:
-        print(most[0])
+        if img is not None:
+            img.save(f"./data/color_not_found/{most[0]}.png")
 
     if type == USABLE_CELL and most[1] == (46, 54, 61):
         type = MONSTER
