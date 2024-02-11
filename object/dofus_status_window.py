@@ -1,3 +1,5 @@
+import time
+
 import arcade
 from object.dofus_agent import Agent
 from utils_dofus import box_size, dict_swap_array_index_to_dofus, base_x, base_y, step_x, step_y, REWARD_END_FIGHT
@@ -5,13 +7,14 @@ from utils_dofus import box_size, dict_swap_array_index_to_dofus, base_x, base_y
 
 class DofusStatusWindow(arcade.Window):
 
-    def __init__(self, agent):
+    def __init__(self, agent, sleep_time = 0):
         super().__init__(2256 // 2, 1504 // 2, "DofusStatus")
         arcade.set_background_color(arcade.color.BLACK)
         self.agent = agent
         self.map_state = self.agent.reset()
         self.cnt = 0
         self.history = []
+        self.sleep_time = sleep_time
 
     def draw_box(self, x, y, color):
         arcade.draw_rectangle_filled(x, 1504 // 2 - y, box_size // 2, box_size // 2, color)
@@ -53,6 +56,7 @@ class DofusStatusWindow(arcade.Window):
             self.agent.save()
 
     def on_update(self, delta_time):
+        time.sleep(self.sleep_time)
         self.map_state, r = self.agent.do(self.map_state)
         if r == REWARD_END_FIGHT:
             self.cnt += 1
