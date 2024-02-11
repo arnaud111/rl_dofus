@@ -1,5 +1,8 @@
+import random
+
 from utils_dofus import get_random_start_map, get_map, MAX_PA, MAX_PM, dict_swap_pos_to_dofus, base_x, step_y, step_x, \
-    base_y, box_size, get_image_type, dict_swap_array_index_to_dofus, INVO, BOSS, MONSTER, UNDEFINED, EMPTY_CELL
+    base_y, box_size, get_image_type, dict_swap_array_index_to_dofus, INVO, BOSS, MONSTER, UNDEFINED, EMPTY_CELL, \
+    get_player_pos, get_pos_at_range, dict_swap_pos_to_array_index, get_all_mobs, dict_swap_array_index_to_pos
 import pyautogui
 
 
@@ -11,6 +14,8 @@ class MapState:
         self.map_index = map_index
         self.pa = pa
         self.pm = pm
+        self.po = 6
+        self.at_range = get_pos_at_range(self.po)
 
     def clone(self):
 
@@ -23,9 +28,7 @@ class MapState:
 
     @staticmethod
     def generate():
-
-        # self.map_index = random.randint(0, 4)
-        map_index = 0
+        map_index = random.randint(0, 4)
         map = get_random_start_map(get_map(f"./data/map_array/map_{map_index + 1}.txt"))
 
         return MapState(MAX_PA, MAX_PM, map, map_index)
@@ -63,8 +66,29 @@ class MapState:
     def state(self):
 
         state = ""
-        for i in range(len(self.map)):
-            state += str(self.map[i])
+
+        player_pos = get_player_pos(self.map)
+
+        for pos in self.at_range:
+            real_pos = player_pos[0] + pos[0], player_pos[1] + pos[1]
+            if real_pos in dict_swap_pos_to_array_index:
+                state += str(self.map[dict_swap_pos_to_array_index[real_pos]])
+
+        lis_mob = get_all_mobs(self.map)
+        if len(lis_mob) > 0:
+            min_index = -1
+            min_diff = -1
+
+            for i in range(len(lis_mob)):
+                pos_mob = dict_swap_array_index_to_pos[lis_mob[i]]
+                diff = abs(pos_mob[0] - player_pos[0]) + abs(pos_mob[1] - player_pos[1])
+                if min_index == -1 or diff < min_diff:
+                    min_diff = diff
+                    min_index = i
+
+            pos_mob = dict_swap_array_index_to_pos[lis_mob[min_index]]
+            state += str(pos_mob[0])
+            state += str(pos_mob[1])
 
         state += str(self.pa)
         state += str(self.pm)

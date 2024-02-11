@@ -184,12 +184,18 @@ def get_player_pos(map_array):
     return -1
 
 
-def mob_turn(map_array, invo=False):
+def get_all_mobs(map_array):
     list_mob = []
 
     for pos in range(len(map_array)):
         if map_array[pos] == MONSTER:
             list_mob.append(pos)
+
+    return list_mob
+
+
+def mob_turn(map_array, invo=False):
+    list_mob = get_all_mobs(map_array)
 
     for mob in list_mob:
 

@@ -1,58 +1,72 @@
+from datetime import datetime
+
 from object.dofus_environement import Environment
 from object.map_state import MapState
 from utils_dofus import ACTIONS, random_action
 import random
+import pickle
+from os.path import exists
 
 
 class Agent:
 
-    def __init__(self, database_connection, learning=True):
-        self.database_connection = database_connection
+    def __init__(self, learning=True, learning_rate=1, discount_factor=0.9):
+        self.qtable = {}
         self.env = Environment()
         self.score = 0
+        self.iteration = 0
         self.learning = learning
-        self.list_actions = []
+        self.learning_rate = learning_rate
+        self.discount_factor = discount_factor
 
     def reset(self):
+        self.iteration = 0
         self.score = 0
-        if self.learning and len(self.list_actions) > 0:
-            self.back_propagation()
-        self.list_actions = []
         return MapState.generate()
 
     def do_all(self, map_state):
+        self.qtable[map_state.state] = {}
         for action in range(len(ACTIONS)):
             reward, new_state = self.env.do(map_state, action)
-            self.database_connection.add_reward(map_state.state, action, reward)
+            self.qtable[map_state.state][action] = reward
 
     def best_action(self, map_state):
-        action = self.database_connection.get_max_action_state(map_state.state)
-        if action is None:
-            self.database_connection.insert_new_state(map_state.state)
+        if map_state.state not in self.qtable:
             self.do_all(map_state)
-            action = self.database_connection.get_max_action_state(map_state.state)
+
+        action = max(self.qtable[map_state.state], key=self.qtable[map_state.state].get)
 
         if self.learning and random.uniform(0, 1) < random_action:
             return random.randint(0, len(ACTIONS) - 1), True
 
         return action, False
 
-    def back_propagation(self):
-        last = self.database_connection.add_reward(self.list_actions[-1][0], self.list_actions[-1][1], self.list_actions[-1][2])
-        for i in range(len(self.list_actions) - 2, -1, -1):
-            last = self.database_connection.compute_reward(self.list_actions[i][0], self.list_actions[i][1], self.list_actions[i][2], last)
-
     def do(self, map_state):
-        action, randomed = self.best_action(map_state.state)
+        action, randomed = self.best_action(map_state)
 
         reward, new_state = self.env.do(map_state, action)
 
         if randomed and map_state.state == new_state.state:
-            return reward
+            return new_state, reward
 
-        self.list_actions.append((map_state.state, action, reward))
+        if new_state.state not in self.qtable:
+            self.do_all(new_state)
+        maxQ = max(self.qtable[new_state.state].values())
+        delta = self.learning_rate * (reward + self.discount_factor * maxQ - self.qtable[map_state.state][action])
+        self.qtable[map_state.state][action] += delta
+
         self.score += reward
+        self.iteration += 1
 
-        self.map_state = new_state
+        return new_state, reward
 
-        return reward
+    def load(self, filename):
+        if exists(filename):
+            with open(filename, 'rb') as file:
+                self.qtable = pickle.load(file)
+            self.reset()
+
+    def save(self):
+        now = datetime.now()
+        with open(f"./results/dofus - {now.strftime('%Y-%m-%d %H:%M')}.qtable", 'wb') as file:
+            pickle.dump(self.qtable, file)
