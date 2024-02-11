@@ -28,7 +28,8 @@ class MapState:
 
     @staticmethod
     def generate():
-        map_index = random.randint(0, 4)
+        #map_index = random.randint(0, 4)
+        map_index = 0
         map = get_random_start_map(get_map(f"./data/map_array/map_{map_index + 1}.txt"))
 
         return MapState(MAX_PA, MAX_PM, map, map_index)

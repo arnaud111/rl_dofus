@@ -39,7 +39,7 @@ REWARD_END_FIGHT = 64
 
 learning_rate = 1
 decrease_factor = 0.5
-random_action = 0.05
+random_action = 0.01
 
 l = 20
 h = 14
