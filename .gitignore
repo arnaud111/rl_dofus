@@ -1,5 +1,9 @@
 .venv
-data
+data/color_not_found
+data/cropped
+data/cropped_visu
+data/dataset
+data/fight
 .idea
 pod
 results
