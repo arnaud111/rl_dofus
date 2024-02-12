@@ -8,7 +8,7 @@ history = []
 agent.score = -1
 cnt = 0
 
-for i in range(1000000):
+for i in range(int(1e6)):
 
     map_state = agent.reset()
 
